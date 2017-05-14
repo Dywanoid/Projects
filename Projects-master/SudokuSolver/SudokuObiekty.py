@@ -1,35 +1,25 @@
 import math
 from FieldClass import Field, Colors, Grid  # (self, row, column, square)
-# SUDOKU :) 053000100064005000900000040008000030605400090040500070000704000710003000000000860
+# SUDOKU :) 030907000040000070500200190100000580820003900007040023410000000000000000082010040
 fields = []
 grid = Grid()
 
 
 def re_calc(row, column, square, number):
     for x in range(81):
-        if fields[x].row == row:
-            try:
-                fields[x].vanish(number)
-            except ValueError:
-                pass
-        if fields[x].column == column:
-            try:
-                fields[x].vanish(number)
-            except ValueError:
-                pass
-        if fields[x].square == square:
-            try:
-                fields[x].vanish(number)
-            except ValueError:
-                pass
+        if fields[x].row == row and number in fields[x].possi:
+            fields[x].vanish(number)
+        if fields[x].column == column and number in fields[x].possi:
+            fields[x].vanish(number)
+        if fields[x].square == square and number in fields[x].possi:
+            fields[x].vanish(number)
 
 
 def check():
     for doesnt_matter in range(81):
         for x in range(81):
-            if fields[x].n_possi == 1:
-                t = fields[x].possi[0]
-                fields[x].place(t)
+            if fields[x].n_possi == 1 and not fields[x].placed:
+                fields[x].place(fields[x].possi[0])
                 re_calc(fields[x].row, fields[x].column, fields[x].square, fields[x].number)
 
 
@@ -49,7 +39,7 @@ def show():
     print('@@@@@@@@@@@@@@@')
 
 
-def start():
+def start():  # takes input and puts some of numbers deleting possibilities
     row, column = 0, 0
     for x in range(81):  # Create every field and grid
         fields.append(Field(row, column, math.floor(column/3) + 3*(math.floor(row/3))))
@@ -63,7 +53,7 @@ def start():
         else:
             column = 0
 
-    my_input = '030907000040000070500200190100000580820003900007040023410000000000000000082010040'  # input()
+    my_input = '000010090000005200010300074300000005000004080000000910000502030007040809003100700'  # input()
     if len(my_input) == 81:
         print('Valid length of input')
     else:
@@ -95,24 +85,43 @@ def same_two():
                                 same.append(fields[indexes[y]].possi[1])
                                 for i in indexes:
                                     if (i != indexes[y]) and (i != indexes[z]):
-                                        try:
+                                        if same[0] in fields[i].possi:
                                             fields[i].vanish(same[0])
-                                        except ValueError:
-                                            pass
-                                        try:
+                                        if same[1] in fields[i].possi:
                                             fields[i].vanish(same[1])
-                                        except ValueError:
-                                            pass
+                    same = []
 
 
 def obvious():
-    pass
-start()  # Start the machine!
+    for x in range(1, 10):  # dla kazdej z cyfr szukam miejsc
+        for h in range(3):
+            ind = [grid.rows, grid.columns, grid.squares]
+            for z in range(9):  # dla kazdego z rzedow, kolumn, kwadratow
+                indexes = ind[h][z]
+                how_many = 0
+                i = 0
+                for field in range(9):  # dla kazdego z pol
+                    if fields[indexes[field]].possi.count(str(x)) == 1:
+                        how_many += 1
+                        i = indexes[field]
+                if how_many == 1:
+                    fields[i].place(str(x))
+                    re_calc(fields[i].row, fields[i].column, fields[i].square, str(x))
 
-show()
+start()  # Start the machine!
 check()
-show()
+obvious()
+check()
+obvious()
+check()
+obvious()
+check()
+obvious()
+check()
+obvious()
+check()
+obvious()
 same_two()
-show()
 check()
+obvious()
 show()

@@ -11,7 +11,7 @@ class Field:
 
     def show(self):
         print('Row:',self.row, 'Col:', self.column, 'Squ:', self.square, 'Pos:', self. possi,'Placed?', self.placed,
-              '#:', self.number)
+              '#:', self.number,'n_Pos:',self.n_possi)
 
 
     def place(self, n):
@@ -22,7 +22,8 @@ class Field:
 
 
     def vanish(self, pos):
-        self.n_possi -= 1
+        if self.n_possi != 1:
+            self.n_possi -= 1
         self.possi.remove(pos)
 
 class Colors:
