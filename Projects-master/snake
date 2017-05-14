@@ -1,0 +1,149 @@
+<html>
+<head>
+</head>
+<body onload="start()">
+<canvas id="myCanvas" width="800" height="400" style="border:1px solid #000000;"></canvas>
+<div id='pkt' style="position:absolute;right: 525px;top: 25px;font-size: 64px;">Punkty:  0</div>
+<script>
+//OBIEKTY:
+
+var plotno = document.getElementById("myCanvas");
+var ctx = plotno.getContext("2d");
+var punkty = document.getElementById("pkt");
+var jedzenie = {X: 0, Y: 0};
+var waz = {X:150, Y:150, V:1, D:1, L:1}; //X,Y - współrzędne, V - prędkość, D - kierunek, L - długość
+var his = [];
+
+document.onkeydown = function(e) {
+    switch (e.keyCode) {
+        case 37:
+            waz.D = 3;
+            break;
+        case 38:
+            waz.D = 0;
+            break;
+        case 39:
+            waz.D = 1;
+            break;
+        case 40:
+            waz.D = 2;
+            break;
+    }
+};
+function start() {
+
+	foodGen();
+	rysuj();
+	setInterval(powtorzenia, 40);
+}
+function reset() {
+
+jedzenie = {X: 0, Y: 0};
+waz = {X:150, Y:150, V:1, D:1, L:1}; //X,Y - współrzędne, V - prędkość, D - kierunek, L - długość
+his = [];
+punkty.innerHTML = 'Punkty: ' + (waz.L -1).toString();
+foodGen();
+rysuj();
+
+
+}
+
+function foodGen() {
+	jedzenie.X = Math.floor(Math.random() * 159) * 5;
+	jedzenie.Y = Math.floor(Math.random() * 79) * 5;
+}
+
+
+function rysuj() {
+
+	
+	var foodX = jedzenie.X;
+	var foodY = jedzenie.Y;
+	ctx.clearRect(0, 0, plotno.width, plotno.height);
+
+	//RYSOWANIE JEDZENIA
+	ctx.fillStyle="#000000";
+	ctx.fillRect(foodX, foodY, 5, 5);
+	
+	//RYSOWANIE WĘŻA:
+	ctx.fillStyle="#FF0000";
+	ctx.fillRect(waz.X, waz.Y, 5, 5);
+	tempX = waz.X;
+	tempY = waz.Y;
+	
+	tempHIS = his;
+	tempHIS.reverse();
+	n = 1;
+	for (i = 0; i < waz.L - 1; i++) { 
+		ctx.fillStyle=('#00'+(n*10).toString()+'00');
+		switch(tempHIS[i]){
+		case 0:
+			//dol
+			ctx.fillRect(tempX, tempY + 5, 5, 5);
+			tempY += 5;
+			break;
+		case 1:
+			//lewo
+			ctx.fillRect(tempX - 5, tempY, 5, 5);
+			tempX -= 5;
+			break;
+		case 2:
+			//gore
+			ctx.fillRect(tempX, tempY - 5, 5, 5);
+			tempY -= 5;
+			break;
+		case 3:
+			//prawo
+			ctx.fillRect(tempX + 5, tempY, 5, 5);
+			tempX += 5;
+			break;
+		}	
+		n+= 1;
+	}
+
+}
+ 
+ function powtorzenia(){
+	switch(waz.D){
+		case 0:
+			waz.Y -= waz.V*5;
+			break;
+		case 1:
+			waz.X += waz.V*5;
+			break;
+		case 2:
+			waz.Y += waz.V*5;
+			break;
+		case 3:
+			waz.X -= waz.V*5;
+			break;
+	}
+	if(waz.Y == 400 || waz.Y == -5) {
+	 alert('gameOVER');
+	 reset();
+	}
+	if(waz.X == 800 || waz.X == -5) {
+	 alert('gameOVER');
+	 reset();
+	}
+	his.reverse();
+	his.push(waz.D);
+	his.shift();
+	
+	if(waz.X == jedzenie.X && waz.Y == jedzenie.Y) {
+		foodGen();
+		waz.L += 1;
+		his.push(waz.D);
+		var t = waz.L - 1;
+		punkty.innerHTML = 'Punkty: ' + t.toString();
+	}
+	
+	rysuj();
+ }
+ 
+ 
+</script>
+
+
+</body>
+</html>
