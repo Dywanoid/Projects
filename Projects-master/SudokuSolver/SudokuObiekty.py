@@ -1,6 +1,7 @@
 import math
 from FieldClass import Field, Colors, Grid  # (self, row, column, square)
-# SUDOKU :) 030907000040000070500200190100000580820003900007040023410000000000000000082010040
+# SUDOKU :) 200000105000300072030056400360170009000090000790005010610000320000000000500000940
+# nierozwiazane 059000008000008000007000026010600070020100030700092000001000300500001200302007690
 fields = []
 grid = Grid()
 
@@ -19,6 +20,7 @@ def check():
     for doesnt_matter in range(81):
         for x in range(81):
             if fields[x].n_possi == 1 and not fields[x].placed:
+                # fields[x].show()
                 fields[x].place(fields[x].possi[0])
                 re_calc(fields[x].row, fields[x].column, fields[x].square, fields[x].number)
 
@@ -53,7 +55,7 @@ def start():  # takes input and puts some of numbers deleting possibilities
         else:
             column = 0
 
-    my_input = '000010090000005200010300074300000005000004080000000910000502030007040809003100700'  # input()
+    my_input = input('Input sudoku:')
     if len(my_input) == 81:
         print('Valid length of input')
     else:
@@ -108,6 +110,50 @@ def obvious():
                     fields[i].place(str(x))
                     re_calc(fields[i].row, fields[i].column, fields[i].square, str(x))
 
+
+def triplets_counter(a, b, c):  # a, b and c are lists of length 3 or 2 containing numbers as strings
+        # together = a # why is this thing here causing weird stuff wtf
+
+        together = []
+        for x in a:
+            if x not in together:
+                together.append(x)
+
+        for y in b:
+            if y not in together:
+                together.append(y)
+
+        for z in c:
+            if z not in together:
+                together.append(z)
+        return [True, together] if len(together) == 3 else [False, []]
+
+
+def triplets():
+    ind = [grid.rows, grid.columns, grid.squares]
+    for h in range(3):
+        for x in range(9):
+            indexes = ind[h][x]
+            for A in range(7):
+                if fields[indexes[A]].n_possi < 4 and not fields[indexes[A]].placed:
+                    for B in range(A + 1, 8):
+                        if fields[indexes[B]].n_possi < 4 and not fields[indexes[B]].placed:
+                            for C in range(B + 1, 9):
+                                if fields[indexes[C]].n_possi < 4 and not fields[indexes[C]].placed:
+                                    temp = triplets_counter(fields[indexes[A]].possi,
+                                                            fields[indexes[B]].possi,
+                                                            fields[indexes[C]].possi)
+                                    if temp[0]:
+                                        for i in indexes:
+                                            if i != indexes[A] and i != indexes[B] and i != indexes[C]:
+                                                if temp[1][0] in fields[i].possi:
+                                                    fields[i].vanish(temp[1][0])
+                                                if temp[1][1] in fields[i].possi:
+                                                    fields[i].vanish(temp[1][1])
+                                                if temp[1][2] in fields[i].possi:
+                                                    fields[i].vanish(temp[1][2])
+
+
 start()  # Start the machine!
 check()
 obvious()
@@ -124,4 +170,21 @@ obvious()
 same_two()
 check()
 obvious()
+check()
+triplets()
+check()
+obvious()
+check()
+obvious()
+check()
+obvious()
+check()
+same_two()
+check()
+obvious()
+check()
+triplets()
+check()
+obvious()
+check()
 show()

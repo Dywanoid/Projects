@@ -8,23 +8,21 @@ class Field:
         self.placed = False
         self.number = '0'
 
-
     def show(self):
-        print('Row:',self.row, 'Col:', self.column, 'Squ:', self.square, 'Pos:', self. possi,'Placed?', self.placed,
-              '#:', self.number,'n_Pos:',self.n_possi)
-
+        print('Row:', self.row, 'Col:', self.column, 'Squ:', self.square, 'Pos:', self. possi, 'Placed?', self.placed,
+              '#:', self.number, 'n_Pos:', self.n_possi)
 
     def place(self, n):
         self.number = n
         self.placed = True
-        self.possi = [n]
-        self.n_possi = 1
-
+        self.possi = []
+        self.n_possi = 0
 
     def vanish(self, pos):
         if self.n_possi != 1:
             self.n_possi -= 1
         self.possi.remove(pos)
+
 
 class Colors:
     HEADER = '\033[95m'
