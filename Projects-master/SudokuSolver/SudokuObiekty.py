@@ -1,9 +1,21 @@
 import math
+import time
+
 from FieldClass import Field, Colors, Grid  # (self, row, column, square)
-# SUDOKU :) 200000105000300072030056400360170009000090000790005010610000320000000000500000940
+# SUDOKU :) 004000060265000040000000000000008300006040920090000500007500008902000000000300457
 # nierozwiazane 059000008000008000007000026010600070020100030700092000001000300500001200302007690
+
 fields = []
 grid = Grid()
+start_time = 0
+
+
+def solved_check():
+    counter = 0
+    for x in range(81):
+        if fields[x].placed:
+            counter += 1
+    return True if counter == 81 else False
 
 
 def re_calc(row, column, square, number):
@@ -17,12 +29,14 @@ def re_calc(row, column, square, number):
 
 
 def check():
+    change = False
     for doesnt_matter in range(81):
         for x in range(81):
             if fields[x].n_possi == 1 and not fields[x].placed:
-                # fields[x].show()
+                change = True
                 fields[x].place(fields[x].possi[0])
                 re_calc(fields[x].row, fields[x].column, fields[x].square, fields[x].number)
+    return change
 
 
 def show():
@@ -58,8 +72,12 @@ def start():  # takes input and puts some of numbers deleting possibilities
     my_input = input('Input sudoku:')
     if len(my_input) == 81:
         print('Valid length of input')
+        global start_time
+        start_time = time.time()
+
     else:
         print('Invalid length of input')
+        exit()
     row, column = 0, 0
     for x in range(81):  # Input handling
         if my_input[x] != '0':
@@ -75,6 +93,7 @@ def start():  # takes input and puts some of numbers deleting possibilities
 def same_two():
     ind = [grid.rows, grid.columns, grid.squares]
     same = []
+    change = False
     for h in range(3):
         for x in range(9):  # dla kazdego rzedu
             indexes = ind[h][x]  # indexy pol calego rzedu
@@ -88,13 +107,17 @@ def same_two():
                                 for i in indexes:
                                     if (i != indexes[y]) and (i != indexes[z]):
                                         if same[0] in fields[i].possi:
+                                            change = True
                                             fields[i].vanish(same[0])
                                         if same[1] in fields[i].possi:
+                                            change = True
                                             fields[i].vanish(same[1])
                     same = []
+    return change
 
 
 def obvious():
+    change = False
     for x in range(1, 10):  # dla kazdej z cyfr szukam miejsc
         for h in range(3):
             ind = [grid.rows, grid.columns, grid.squares]
@@ -107,8 +130,10 @@ def obvious():
                         how_many += 1
                         i = indexes[field]
                 if how_many == 1:
+                    change = True
                     fields[i].place(str(x))
                     re_calc(fields[i].row, fields[i].column, fields[i].square, str(x))
+    return change
 
 
 def triplets_counter(a, b, c):  # a, b and c are lists of length 3 or 2 containing numbers as strings
@@ -131,6 +156,7 @@ def triplets_counter(a, b, c):  # a, b and c are lists of length 3 or 2 containi
 
 def triplets():
     ind = [grid.rows, grid.columns, grid.squares]
+    change = False
     for h in range(3):
         for x in range(9):
             indexes = ind[h][x]
@@ -147,44 +173,40 @@ def triplets():
                                         for i in indexes:
                                             if i != indexes[A] and i != indexes[B] and i != indexes[C]:
                                                 if temp[1][0] in fields[i].possi:
+                                                    change = True
                                                     fields[i].vanish(temp[1][0])
                                                 if temp[1][1] in fields[i].possi:
+                                                    change = True
                                                     fields[i].vanish(temp[1][1])
                                                 if temp[1][2] in fields[i].possi:
+                                                    change = True
                                                     fields[i].vanish(temp[1][2])
+    return change
 
 
-start()  # Start the machine!
-check()
-obvious()
-check()
-obvious()
-check()
-obvious()
-check()
-obvious()
-check()
-obvious()
-check()
-obvious()
-same_two()
-check()
-obvious()
-check()
-triplets()
-check()
-obvious()
-check()
-obvious()
-check()
-obvious()
-check()
-same_two()
-check()
-obvious()
-check()
-triplets()
-check()
-obvious()
-check()
-show()
+def main():
+    start()
+
+    solved = False
+    dead_end = False
+    while not solved:
+        if not check():
+            if not obvious():
+                if not same_two():
+                    if not triplets():
+                        dead_end = True
+                        solved = True
+        if solved_check():
+            solved = True
+    if dead_end:
+        print("Couldn't solve ;/")
+        show()
+    else:
+        print('DONE!')
+        show()
+
+
+main()
+
+
+print("--- %s seconds ---" % (time.time() - start_time))
